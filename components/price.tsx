@@ -1,62 +1,68 @@
 import NumberFormat from 'react-number-format';
 
-const Price = ({ price, priceWithDiscount }) => {
-	if (priceWithDiscount > 0) {
-		return (
-			<>
-				<p>
-					De:{' '}
-					<NumberFormat
-						value={price}
-						displayType={'text'}
-						thousandSeparator={'.'}
-						decimalSeparator={','}
-						fixedDecimalScale={true}
-						decimalScale={2}
-						prefix={'R$ '}
-					/>
-				</p>
-				<p>
-					Por:{' '}
-					<NumberFormat
-						value={priceWithDiscount}
-						displayType={'text'}
-						thousandSeparator={'.'}
-						decimalSeparator={','}
-						fixedDecimalScale={true}
-						decimalScale={2}
-						prefix={'R$ '}
-					/>
-				</p>
-				<p>
-					Desc:{' '}
-					<NumberFormat
-						value={(1 - priceWithDiscount / price) * 100}
-						displayType={'text'}
-						thousandSeparator={'.'}
-						decimalSeparator={','}
-						fixedDecimalScale={true}
-						decimalScale={2}
-						suffix={' %'}
-					/>
-				</p>
-			</>
-		);
-	} else {
-		return (
+interface IBRLFormat {
+	value: number;
+}
+
+const BRLFormat = ({ value }: IBRLFormat) => {
+	return (
+		<NumberFormat
+			value={value}
+			displayType={'text'}
+			decimalSeparator={','}
+			thousandSeparator={'.'}
+			fixedDecimalScale={true}
+			decimalScale={2}
+			prefix={'R$ '}
+		/>
+	);
+};
+
+const withDiscount = (price: number, priceWithDiscount: number) => {
+	const discount = (1 - priceWithDiscount / price) * 100;
+
+	return (
+		<>
 			<p>
+				De:
+				<BRLFormat value={price} />
+			</p>
+			<p>
+				Por:
+				<BRLFormat value={priceWithDiscount} />
+			</p>
+			<p>
+				Desconto:
 				<NumberFormat
-					value={price}
+					value={discount}
 					displayType={'text'}
-					thousandSeparator={'.'}
-					decimalSeparator={','}
+					suffix={'%'}
 					fixedDecimalScale={true}
 					decimalScale={2}
-					prefix={'R$ '}
+					decimalSeparator={','}
+					thousandSeparator={'.'}
 				/>
 			</p>
-		);
-	}
+		</>
+	);
+};
+
+const withoutDiscount = (price: number) => {
+	return (
+		<p>
+			<BRLFormat value={price} />
+		</p>
+	);
+};
+
+interface PriceProps {
+	price: number;
+	priceWithDiscount: number;
+}
+
+const Price = ({ price, priceWithDiscount }: PriceProps) => {
+	if (priceWithDiscount > 0) return withDiscount(price, priceWithDiscount);
+	else return withoutDiscount(price);
 };
 
 export default Price;
